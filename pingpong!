@@ -1,0 +1,150 @@
+import pygame
+
+import os
+
+import  random
+import math
+
+#initiliaze pygame
+pygame.init()
+
+screen = pygame.display.set_mode((800,600))
+current_path = os.path.dirname(r"C:\Users\Dell\Desktop\Important\spaceinvaders\*") # Where your .py file is located
+resource_path = os.path.join(current_path, "ufoimages") # The resource folder path
+print(resource_path)
+
+
+
+#score
+score_val =0
+font = pygame.font.Font("freesansbold.ttf",32)
+
+def score(x,y):
+    sc = font.render("SCORE:"+ str(score_val), True, (255,255,255))
+    screen.blit(sc,(x,y))
+
+#ball
+ball1 = pygame.image.load(os.path.join(resource_path,"balance-ball.png"))
+ballx = random.randint(250,450)
+bally = 300
+ballx_change= 0.18
+bally_change = 0.11
+ball_state = "ball"
+
+bat1 = pygame.image.load(os.path.join(resource_path,"rectangle.png"))
+batx1 =1
+baty1 = 270
+baty1_change = 0.2
+
+bat2=  pygame.image.load(os.path.join(resource_path,"rectangle.png"))
+batx2 = 768
+baty2 =270
+baty2_change = 1.29
+x = random.randint(0, 100)   #random generator for balls y position at start
+
+bat3 = pygame.image.load(os.path.join(resource_path,"rectangle.png"))
+batx3 =1
+baty3 = 450
+baty3_change = 0.29
+
+#collision variables
+
+def collision(x1,y1, x2, y2):
+    distance = math.sqrt(math.pow((x1-x2),2)+math.pow((y1-y2),2))
+    if distance < 33:
+        return True
+    else:
+        return False
+
+run = True
+
+#for computer movements. the bat of the computer to look at the ball always
+#where y3 is the balls y_change.
+
+def computermovement(x1,y1,x2,y2):
+    dist = math.sqrt(math.pow((x1-x2),2)+math.pow((y1-y2),2))
+    if(dist<500):
+           return True
+    else:
+          return  False
+
+
+#define functions for images
+
+def bat(b, x, y):
+    screen.blit(b, (x,y))
+
+
+def ball(b, x ,y):
+    if ball_state == "ball":
+                     screen.blit(b,(x,y))
+
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+    screen.fill((0,0,0))
+    bat(bat1, batx1, baty1)
+    bat(bat2, batx2, baty2)
+    comp = computermovement(batx1, baty1, ballx, bally)
+    if(comp==True):
+       if (baty1>bally):
+                 baty1 -= (5*baty1_change)   #the ball is above the bat if ballyy is lesser than baty and vice versa
+                 if baty1 >= 530:
+                    baty1 -=  1
+                 elif baty1 <= 40:
+                     baty1 += 1
+       elif(baty1<bally):
+                 baty1  += (5*baty1_change)
+                 if baty1 >= 530:
+                     baty1 -= 1
+                 elif baty1 <= 40:
+                     baty1 += 1
+
+    score(10,10)
+    ball_state = "ball"
+    ball(ball1, ballx, bally)
+    ballx += ballx_change
+    bally += bally_change
+    print(bally)
+    if event.type== pygame.KEYDOWN:
+        if event.key == pygame.K_UP:
+            baty2 -= baty2_change
+        if event.key ==pygame.K_DOWN:
+            baty2 += baty2_change
+    if baty2 >= 560:
+        baty2 -= baty2_change
+    elif baty2 <= 7:
+        baty2 += baty2_change
+
+
+    if   bally <= 0:
+         bally_change += 0.2
+    elif bally >= 570:
+         bally_change -= 0.2
+
+
+
+    if ballx >= 800:
+        ball_state = "no"
+        ballx = random.randint(250,450)
+        bally_change *= -0.75
+        ballx_change *= -0.75
+    elif ballx <= 0:
+        score_val +=1
+        ball_state = "no"
+        ballx = random.randint(250,450)
+        bally_change *= -0.75
+        ballx_change *= -0.75
+    score1 = 0
+    score2 = 0
+    coll = collision(batx2, baty2, ballx, bally)
+    if(coll == True):
+        ballx_change += -1
+        bally_change *= -1.2
+    coll = collision(batx1, baty1, ballx, bally)
+    if (coll == True):
+        ballx_change += 1
+        bally_change *= 1
+    pygame.display.update()
+
